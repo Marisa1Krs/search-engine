@@ -5,6 +5,8 @@
 #include<vector>
 #include<map>
 #include<string>
+#include"mylog.h"
+#include <dirent.h>
 using std::vector;
 using std::map;
 using std::string;
@@ -16,7 +18,7 @@ public:
     ~DictProducer();
     void buildEnDict();
     void buildCnDict();
-    void storeDict(const char* filepath);
+    void storeDict(const char* filepath);//将词典写入文件
     void showFiles();
     void showDict();
     void getFiles();
@@ -24,7 +26,7 @@ public:
 private:
     vector<string> _files;
     vector<pair<string,int>> _dict;
-    SplitTool* _splitTool;
+    SplitTool* _splitTool=nullptr ;
     map<string,set<int>> _index;
 };
 
