@@ -1,0 +1,56 @@
+{
+  "version": "2.0.0",
+  "options": {
+      "cwd": "${workspaceFolder}/build/"
+  },
+  "tasks": [
+      {
+          "label": "cmake",
+          "type": "shell",
+          "command": "cmake",
+          "args": [".."],
+          "problemMatcher": [],
+          "detail": "生成Makefile",
+          // 当cmake失败时终止任务链
+          "presentation": {
+              "reveal": "always",
+              "panel": "shared"
+          }
+      },
+      {
+          "label": "pwd",
+          "type": "shell",
+          "command": "pwd",
+          "args": [],
+          "problemMatcher": [],
+          "detail": "显示当前工作目录"
+      },
+      {
+          "label": "make",
+          "group": {
+              "kind": "build",
+              "isDefault": true
+          },
+          "command": "make",
+          "args": [],
+          "problemMatcher": ["$gcc"],
+          "detail": "编译项目",
+          // 依赖cmake任务，且仅在cmake成功后执行
+          "dependsOn": ["cmake"],
+          // 编译失败时不执行后续步骤
+          "presentation": {
+              "reveal": "always",
+              "panel": "shared"
+          },
+          // 关键配置：任务失败时标记为错误
+          "exitCode": 0
+      },
+      {
+          "label": "CMake",
+          "dependsOn": ["cmake", "make"],
+          // 当依赖任务失败时，此任务也失败
+          "dependsOrder": "sequence",
+          "detail": "完整构建流程"
+      }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch Chrome",
+      "request": "launch",
+      "type": "chrome",
+      "url": "http://localhost:8080",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
+      "name": "C/C++ Debug",
+      "type": "cppdbg",
+      "request": "launch",
+      "args": [],
+      "stopAtEntry": false,
+      "externalConsole": false,
+      "cwd": "${workspaceFolder}/build", // 与task.json的cwd保持一致
+      "program": "${workspaceFolder}/build/server", // 指向build目录中的可执行文件
+      "MIMode": "gdb",
+      "miDebuggerPath": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ],
+      // 依赖task.json中定义的"CMake"任务（先构建后调试）
+      "preLaunchTask": "CMake",
+      // 关键：若前置构建任务失败，调试直接终止
+      "presentation": {
+        "reveal": "silent"
+      },
+      // 增加调试日志，便于排查构建与调试的衔接问题
+      "logging": {
+        "moduleLoad": false,
+        "trace": false,
+        "traceResponse": false
+      }
+    }
+  ]
+}
