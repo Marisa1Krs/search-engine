@@ -5,6 +5,7 @@
 #include "Simhasher.hpp"
 #include"json.hpp"
 #include"mylog.h"
+#include"DictProducer.h"
 using std::cout;
 using std::endl;
 using std::string;
@@ -15,7 +16,10 @@ string logPath="/home/marisa/code1/search-engine/log/log.txt";
 
 int main()
 {
-    mylog::init(logPath,4096,LOG_DEBUG);
-    LOG_DEBUG("hello world");
+    mylog::init(logPath,4096,LOG_INFO);
+    string cnt="/home/marisa/code1/search-engine/data/yuliao/chinese";
+    DictProducer temp(cnt,SplitTool::getPtr());
+    temp.buildCnDict();
+    sleep(5);
     return 0;
 }

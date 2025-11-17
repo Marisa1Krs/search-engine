@@ -1,1 +1,136 @@
-
+Marisa⭐Daze[2025-11-17 20:35:01.546] [INFO] [DictProducer.cpp:33] Create DictProducer ,dir is /home/marisa/code1/search-engine/data/yuliao/englise
+Marisa⭐Daze[2025-11-17 20:35:01.546] [ERROR] [DictProducer.cpp:36] open filedir fall,path is /home/marisa/code1/search-engine/data/yuliao/englise
+Marisa⭐Daze[2025-11-17 20:35:45.784] [INFO] [DictProducer.cpp:33] Create DictProducer ,dir is /home/marisa/code1/search-engine/data/yuliao/english
+Marisa⭐Daze[2025-11-17 20:37:45.884] [INFO] [DictProducer.cpp:33] Create DictProducer ,dir is /home/marisa/code1/search-engine/data/yuliao/englishtest
+Marisa⭐Daze[2025-11-17 20:38:54.785] [INFO] [DictProducer.cpp:33] Create DictProducer ,dir is /home/marisa/code1/search-engine/data/yuliao/englishtest
+Marisa⭐Daze[2025-11-17 20:38:54.811] [INFO] [DictProducer.cpp:126] wash success
+Marisa⭐Daze[2025-11-17 20:39:22.434] [INFO] [DictProducer.cpp:33] Create DictProducer ,dir is /home/marisa/code1/search-engine/data/yuliao/englishtest
+Marisa⭐Daze[2025-11-17 20:39:22.459] [INFO] [DictProducer.cpp:126] wash success
+Marisa⭐Daze[2025-11-17 20:48:26.778] [INFO] [DictProducer.cpp:33] Create DictProducer ,dir is /home/marisa/code1/search-engine/data/yuliao/englishtest
+Marisa⭐Daze[2025-11-17 20:48:26.801] [INFO] [DictProducer.cpp:126] wash success
+Marisa⭐Daze[2025-11-17 20:48:29.983] [INFO] [DictProducer.cpp:128] load success
+Marisa⭐Daze[2025-11-17 20:48:42.793] [INFO] [DictProducer.cpp:33] Create DictProducer ,dir is /home/marisa/code1/search-engine/data/yuliao/englishtest
+Marisa⭐Daze[2025-11-17 20:48:42.818] [INFO] [DictProducer.cpp:126] wash success
+Marisa⭐Daze[2025-11-17 20:49:41.192] [INFO] [DictProducer.cpp:33] Create DictProducer ,dir is /home/marisa/code1/search-engine/data/yuliao/englishtest
+Marisa⭐Daze[2025-11-17 20:49:41.221] [INFO] [DictProducer.cpp:126] wash success
+Marisa⭐Daze[2025-11-17 20:51:26.721] [INFO] [DictProducer.cpp:33] Create DictProducer ,dir is /home/marisa/code1/search-engine/data/yuliao/englishtest
+Marisa⭐Daze[2025-11-17 20:51:26.766] [INFO] [DictProducer.cpp:127] wash success
+Marisa⭐Daze[2025-11-17 20:58:04.354] [INFO] [DictProducer.cpp:33] Create DictProducer ,dir is /home/marisa/code1/search-engine/data/yuliao/englishtest
+Marisa⭐Daze[2025-11-17 20:58:04.382] [INFO] [DictProducer.cpp:127] wash success
+Marisa⭐Daze[2025-11-17 21:02:53.536] [INFO] [DictProducer.cpp:34] Create DictProducer ,dir is /home/marisa/code1/search-engine/data/yuliao/englishtest
+Marisa⭐Daze[2025-11-17 21:02:53.559] [INFO] [DictProducer.cpp:153] wash success
+Marisa⭐Daze[2025-11-17 21:03:03.347] [INFO] [DictProducer.cpp:155] load success
+Marisa⭐Daze[2025-11-17 21:03:21.710] [INFO] [DictProducer.cpp:34] Create DictProducer ,dir is /home/marisa/code1/search-engine/data/yuliao/englishtest
+Marisa⭐Daze[2025-11-17 21:03:21.734] [INFO] [DictProducer.cpp:153] wash success
+Marisa⭐Daze[2025-11-17 21:04:48.933] [INFO] [DictProducer.cpp:34] Create DictProducer ,dir is /home/marisa/code1/search-engine/data/yuliao/englishtest
+Marisa⭐Daze[2025-11-17 21:04:48.958] [INFO] [DictProducer.cpp:153] wash success
+Marisa⭐Daze[2025-11-17 21:06:23.228] [INFO] [DictProducer.cpp:34] Create DictProducer ,dir is /home/marisa/code1/search-engine/data/yuliao/englishtest
+Marisa⭐Daze[2025-11-17 21:06:23.254] [INFO] [DictProducer.cpp:155] wash success
+Marisa⭐Daze[2025-11-17 21:10:15.059] [INFO] [DictProducer.cpp:157] load success
+Marisa⭐Daze[2025-11-17 21:28:59.582] [INFO] [DictProducer.cpp:34] Create DictProducer ,dir is /home/marisa/code1/search-engine/data/yuliao/chinesetest
+Marisa⭐Daze[2025-11-17 21:28:59.583] [INFO] [DictProducer.cpp:203] wash success
+Marisa⭐Daze[2025-11-17 21:28:59.601] [INFO] [DictProducer.cpp:205] load success
+Marisa⭐Daze[2025-11-17 21:29:12.164] [INFO] [DictProducer.cpp:34] Create DictProducer ,dir is /home/marisa/code1/search-engine/data/yuliao/chinesetest
+Marisa⭐Daze[2025-11-17 21:29:25.602] [INFO] [DictProducer.cpp:34] Create DictProducer ,dir is /home/marisa/code1/search-engine/data/yuliao/chinesetest
+Marisa⭐Daze[2025-11-17 21:29:25.602] [INFO] [DictProducer.cpp:203] wash success
+Marisa⭐Daze[2025-11-17 21:38:36.069] [INFO] [DictProducer.cpp:34] Create DictProducer ,dir is /home/marisa/code1/search-engine/data/yuliao/chinesetest
+Marisa⭐Daze[2025-11-17 21:39:52.324] [INFO] [DictProducer.cpp:34] Create DictProducer ,dir is /home/marisa/code1/search-engine/data/yuliao/chinesetest
+Marisa⭐Daze[2025-11-17 21:40:41.794] [INFO] [DictProducer.cpp:34] Create DictProducer ,dir is /home/marisa/code1/search-engine/data/yuliao/chinesetest
+Marisa⭐Daze[2025-11-17 21:40:41.828] [INFO] [DictProducer.cpp:214] wash success
+Marisa⭐Daze[2025-11-17 21:41:48.988] [INFO] [DictProducer.cpp:34] Create DictProducer ,dir is /home/marisa/code1/search-engine/data/yuliao/chinesetest
+Marisa⭐Daze[2025-11-17 21:41:49.022] [INFO] [DictProducer.cpp:214] wash success
+Marisa⭐Daze[2025-11-17 21:42:55.243] [INFO] [DictProducer.cpp:34] Create DictProducer ,dir is /home/marisa/code1/search-engine/data/yuliao/chinese
+Marisa⭐Daze[2025-11-17 21:42:55.279] [INFO] [DictProducer.cpp:214] wash success
+Marisa⭐Daze[2025-11-17 21:43:10.247] [INFO] [DictProducer.cpp:216] load success
+Marisa⭐Daze[2025-11-17 21:43:10.255] [INFO] [DictProducer.cpp:214] wash success
+Marisa⭐Daze[2025-11-17 21:43:11.357] [INFO] [DictProducer.cpp:216] load success
+Marisa⭐Daze[2025-11-17 21:43:11.379] [INFO] [DictProducer.cpp:214] wash success
+Marisa⭐Daze[2025-11-17 21:43:12.990] [INFO] [DictProducer.cpp:216] load success
+Marisa⭐Daze[2025-11-17 21:43:13.006] [INFO] [DictProducer.cpp:214] wash success
+Marisa⭐Daze[2025-11-17 21:43:13.756] [INFO] [DictProducer.cpp:216] load success
+Marisa⭐Daze[2025-11-17 21:43:13.768] [INFO] [DictProducer.cpp:214] wash success
+Marisa⭐Daze[2025-11-17 21:43:14.396] [INFO] [DictProducer.cpp:216] load success
+Marisa⭐Daze[2025-11-17 21:43:14.426] [INFO] [DictProducer.cpp:214] wash success
+Marisa⭐Daze[2025-11-17 21:43:15.687] [INFO] [DictProducer.cpp:216] load success
+Marisa⭐Daze[2025-11-17 21:43:15.697] [INFO] [DictProducer.cpp:214] wash success
+Marisa⭐Daze[2025-11-17 21:43:16.232] [INFO] [DictProducer.cpp:216] load success
+Marisa⭐Daze[2025-11-17 21:43:16.257] [INFO] [DictProducer.cpp:214] wash success
+Marisa⭐Daze[2025-11-17 21:43:17.003] [INFO] [DictProducer.cpp:216] load success
+Marisa⭐Daze[2025-11-17 21:43:17.026] [INFO] [DictProducer.cpp:214] wash success
+Marisa⭐Daze[2025-11-17 21:43:17.922] [INFO] [DictProducer.cpp:216] load success
+Marisa⭐Daze[2025-11-17 21:43:17.951] [INFO] [DictProducer.cpp:214] wash success
+Marisa⭐Daze[2025-11-17 21:45:24.690] [INFO] [DictProducer.cpp:34] Create DictProducer ,dir is /home/marisa/code1/search-engine/data/yuliao/chinese
+Marisa⭐Daze[2025-11-17 21:45:24.728] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0019.txt
+Marisa⭐Daze[2025-11-17 21:45:27.651] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0019.txt
+Marisa⭐Daze[2025-11-17 21:45:27.658] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0039.txt
+Marisa⭐Daze[2025-11-17 21:45:28.360] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0039.txt
+Marisa⭐Daze[2025-11-17 21:45:28.372] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0025.txt
+Marisa⭐Daze[2025-11-17 21:45:29.061] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0025.txt
+Marisa⭐Daze[2025-11-17 21:45:29.076] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0017.txt
+Marisa⭐Daze[2025-11-17 21:45:29.717] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0017.txt
+Marisa⭐Daze[2025-11-17 21:45:29.724] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0002.txt
+Marisa⭐Daze[2025-11-17 21:45:30.302] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0002.txt
+Marisa⭐Daze[2025-11-17 21:45:30.327] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0009.txt
+Marisa⭐Daze[2025-11-17 21:45:32.901] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0009.txt
+Marisa⭐Daze[2025-11-17 21:45:32.909] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0033.txt
+Marisa⭐Daze[2025-11-17 21:45:33.630] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0033.txt
+Marisa⭐Daze[2025-11-17 21:45:33.652] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0011.txt
+Marisa⭐Daze[2025-11-17 21:45:34.148] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0011.txt
+Marisa⭐Daze[2025-11-17 21:45:34.160] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0045.txt
+Marisa⭐Daze[2025-11-17 21:45:34.847] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0045.txt
+Marisa⭐Daze[2025-11-17 21:45:34.872] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0013.txt
+Marisa⭐Daze[2025-11-17 21:45:37.550] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0013.txt
+Marisa⭐Daze[2025-11-17 21:45:37.568] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0015.txt
+Marisa⭐Daze[2025-11-17 21:45:38.409] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0015.txt
+Marisa⭐Daze[2025-11-17 21:45:38.434] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0043.txt
+Marisa⭐Daze[2025-11-17 21:45:41.283] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0043.txt
+Marisa⭐Daze[2025-11-17 21:45:41.297] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0029.txt
+Marisa⭐Daze[2025-11-17 21:45:42.045] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0029.txt
+Marisa⭐Daze[2025-11-17 21:45:42.070] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0037.txt
+Marisa⭐Daze[2025-11-17 21:45:57.526] [INFO] [DictProducer.cpp:34] Create DictProducer ,dir is /home/marisa/code1/search-engine/data/yuliao/chinese
+Marisa⭐Daze[2025-11-17 21:45:57.559] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0019.txt
+Marisa⭐Daze[2025-11-17 21:45:57.768] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0019.txt
+Marisa⭐Daze[2025-11-17 21:45:57.774] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0039.txt
+Marisa⭐Daze[2025-11-17 21:45:57.823] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0039.txt
+Marisa⭐Daze[2025-11-17 21:45:57.837] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0025.txt
+Marisa⭐Daze[2025-11-17 21:45:57.956] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0025.txt
+Marisa⭐Daze[2025-11-17 21:45:57.967] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0017.txt
+Marisa⭐Daze[2025-11-17 21:45:58.126] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0017.txt
+Marisa⭐Daze[2025-11-17 21:45:58.132] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0002.txt
+Marisa⭐Daze[2025-11-17 21:45:58.216] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0002.txt
+Marisa⭐Daze[2025-11-17 21:45:58.237] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0009.txt
+Marisa⭐Daze[2025-11-17 21:45:58.524] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0009.txt
+Marisa⭐Daze[2025-11-17 21:45:58.530] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0033.txt
+Marisa⭐Daze[2025-11-17 21:45:58.607] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0033.txt
+Marisa⭐Daze[2025-11-17 21:45:58.624] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0011.txt
+Marisa⭐Daze[2025-11-17 21:45:58.918] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0011.txt
+Marisa⭐Daze[2025-11-17 21:45:58.931] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0045.txt
+Marisa⭐Daze[2025-11-17 21:45:59.222] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0045.txt
+Marisa⭐Daze[2025-11-17 21:45:59.242] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0013.txt
+Marisa⭐Daze[2025-11-17 21:45:59.646] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0013.txt
+Marisa⭐Daze[2025-11-17 21:45:59.656] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0015.txt
+Marisa⭐Daze[2025-11-17 21:45:59.806] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0015.txt
+Marisa⭐Daze[2025-11-17 21:45:59.828] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0043.txt
+Marisa⭐Daze[2025-11-17 21:46:00.401] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0043.txt
+Marisa⭐Daze[2025-11-17 21:46:00.409] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0029.txt
+Marisa⭐Daze[2025-11-17 21:46:00.537] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0029.txt
+Marisa⭐Daze[2025-11-17 21:46:00.554] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0037.txt
+Marisa⭐Daze[2025-11-17 21:46:00.871] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0037.txt
+Marisa⭐Daze[2025-11-17 21:46:00.885] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0003.txt
+Marisa⭐Daze[2025-11-17 21:46:01.069] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0003.txt
+Marisa⭐Daze[2025-11-17 21:46:01.102] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0031.txt
+Marisa⭐Daze[2025-11-17 21:46:01.706] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0031.txt
+Marisa⭐Daze[2025-11-17 21:46:01.734] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0027.txt
+Marisa⭐Daze[2025-11-17 21:46:02.344] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0027.txt
+Marisa⭐Daze[2025-11-17 21:46:02.359] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0007.txt
+Marisa⭐Daze[2025-11-17 21:46:02.554] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0007.txt
+Marisa⭐Daze[2025-11-17 21:46:02.570] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0021.txt
+Marisa⭐Daze[2025-11-17 21:46:02.811] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0021.txt
+Marisa⭐Daze[2025-11-17 21:46:02.833] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0023.txt
+Marisa⭐Daze[2025-11-17 21:46:03.298] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0023.txt
+Marisa⭐Daze[2025-11-17 21:46:03.325] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0041.txt
+Marisa⭐Daze[2025-11-17 21:46:03.943] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0041.txt
+Marisa⭐Daze[2025-11-17 21:46:03.964] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0035.txt
+Marisa⭐Daze[2025-11-17 21:46:04.389] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0035.txt
+Marisa⭐Daze[2025-11-17 21:46:04.401] [INFO] [DictProducer.cpp:214] wash success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0005.txt
+Marisa⭐Daze[2025-11-17 21:46:04.642] [INFO] [DictProducer.cpp:216] load success path:/home/marisa/code1/search-engine/data/yuliao/chinese/C3-Art0005.txt

@@ -24,6 +24,9 @@ public:
     void getFiles();
     void pushDict(const string & word);
 private:
+    void washWordsEn(char* words);//清洗英文文本:大写全部变成小写，其他标点符号全部变成空格
+    void washWordsCn(char* words);
+    void loadDict(char *words,unordered_map<string,int>& mp,size_t size);//加载字典
     vector<string> _files;
     vector<pair<string,int>> _dict;
     SplitTool* _splitTool=nullptr ;

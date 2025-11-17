@@ -19,4 +19,5 @@ SplitTool* SplitTool::getPtr(){
 vector<string> SplitTool::cut(string& sentens){
     vector<string> help;
     cutHelper.Cut(sentens,help,1);
+    return help;
 }
