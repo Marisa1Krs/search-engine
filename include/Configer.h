@@ -4,6 +4,8 @@
 #include<iostream>
 #include<map>
 #include<set>
+#include<fcntl.h>
+#include <unistd.h>
 using std::string;
 using std::map;
 using std::set;

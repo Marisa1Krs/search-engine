@@ -36,5 +36,5 @@ add_executable(server ${SRCS})
 #     /home/marisa/code1/search-engine/data/third_party/*.a  # 匹配所有静态库
 #     /home/marisa/code1/search-engine/data/third_party/*.so # 匹配所有动态库
 # )
-# target_link_libraries(server PRIVATE ${THIRD_PARTY_LIBS})
+target_link_libraries(server PRIVATE tinyxml2)
 # ###########################################################################################

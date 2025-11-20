@@ -10,9 +10,9 @@ using std::string;
 class WebPage
 {
 public:
-    WebPage(string& doc,Configer& conf,SplitTool&  jieba);
+    WebPage(int id,string& _title,string& _url,string _content);
     ~WebPage();
-
+    string processDoc();
 private:
     string _doc;
     int _id;
@@ -20,8 +20,8 @@ private:
     string _url;
     string _content;
     SplitTool* _jieba;
-    void processDoc(const string& doc,Configer& conf,SplitTool* _jieba);
-    void calcTopK(vector<string>& words,int k=TOPK_NUMBER,set<string>& stopWord);
+   
+    // void calcTopK(vector<string>& words,int k=TOPK_NUMBER,set<string>& stopWord);
     friend bool operator==(const WebPage & lhs, const WebPage & rhs);
     friend bool operator < (const WebPage & lhs, const WebPage & rhs);
 };

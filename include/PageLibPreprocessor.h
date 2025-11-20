@@ -24,7 +24,8 @@ private:
     void readInfoFromFile();//读内容
     void cutRedundantPages();//去重
     void buildInvertIndex();//创建倒排索引
-    void storeOnDisk();
+    void storeOnDisk(int fd,string& text);
+    Configer& _conf;
 };
 
 #endif
