@@ -23,7 +23,7 @@ private:
     unordered_map<string,vector<pair<int,double>>> _invertIndex;
     void readInfoFromFile();//读内容
     bool cutRedundantPages(string text,vector<uint64_t>& helper);//去重
-    void buildInvertIndex(string& text,unordered_map<string,int>& baner,int docid);//创建倒排索引
+    void buildInvertIndex();//创建倒排索引
     void storeOnDisk(int fd,string& text);
     Configer& _conf;
 };
