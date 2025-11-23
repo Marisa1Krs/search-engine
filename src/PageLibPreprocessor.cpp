@@ -2,6 +2,9 @@
 #include <dirent.h>
 #include"mylog.h"
 #include"tinyxml2.h"
+const int TOPNVAL=10;
+const char *banPathEn = "/home/marisa/code1/search-engine/data/yuliao/stop_words_eng.txt";
+const char *banPathCn = "/home/marisa/code1/search-engine/data/yuliao/stop_words_zh.txt";
 using namespace tinyxml2;
 PageLibPreprocessor::PageLibPreprocessor(Configer& conf)
 :_conf(conf)
@@ -44,7 +47,36 @@ void PageLibPreprocessor::readInfoFromFile(){
             LOG_DEBUG("file is pushed back %s", temp.c_str());
         }
     }
+
     int docid=0;
+    vector<uint64_t> simHelp;
+    size_t offset=0;
+
+    int banFd = open(banPathCn, O_RDONLY); // 加载停用词
+    char buf[8192];
+    memset(buf, 0, 8192);
+    ::read(banFd, buf, 8192);
+    unordered_map<string, int> mp;
+    string tempWord;
+    for (int i = 0; i < 8192; i++)
+    {
+        if (buf[i] == '\r')
+        {
+            i++;
+            if (tempWord.size())
+            {
+                mp[tempWord] = -1;
+            }
+            LOG_DEBUG("word %s is banned", tempWord.c_str());
+            tempWord.clear();
+        }
+        else
+        {
+            tempWord.push_back(buf[i]);
+        }
+    }
+
+
     for(auto &t:files){
         XMLDocument doc;
         XMLError eResult = doc.LoadFile(t.c_str());
@@ -68,7 +100,7 @@ void PageLibPreprocessor::readInfoFromFile(){
             // --- 获取 Title ---
             auto nodeTitle = it->FirstChildElement("title");
             string title = GetSafeText(nodeTitle);
-            LOG_INFO("title text: %s", title.c_str());
+            LOG_DEBUG("title text: %s", title.c_str());
         
             // --- 获取 Content / Description ---
             // 优先获取 description
@@ -81,11 +113,14 @@ void PageLibPreprocessor::readInfoFromFile(){
                 auto nodeContent = it->FirstChildElement("content");
                 content = GetSafeText(nodeContent);
             }
+            if(!content.empty()&&!cutRedundantPages(content,simHelp)){
+                continue;
+            }//如果去重检测不通过，那么就直接进行下一轮
         
             // --- 获取 Link ---
             auto nodeUrl = it->FirstChildElement("link");
             string url = GetSafeText(nodeUrl);
-            LOG_INFO("URL text: %s", url.c_str());
+            LOG_DEBUG("URL text: %s", url.c_str());
         
          
             WebPage temp(docid++, title, url, content);
@@ -93,19 +128,34 @@ void PageLibPreprocessor::readInfoFromFile(){
             string text = temp.processDoc();
             
             // 只有当内容不为空时才写入，增加健壮性
-            if (!text.empty()) {
+            if (!content.empty()&&!text.empty()) {
                 storeOnDisk(storeFd, text);
-                LOG_DEBUG("text be store length: %lu", text.size()); // 打印长度比打印整个内容更安全，防止日志刷屏
+                _offsetLib[docid-1].first=offset;
+                _offsetLib[docid-1].second=text.size();
+                offset+=text.size()+1;
+                LOG_INFO("text be store length: %lu", text.size()); // 打印长度比打印整个内容更安全，防止日志刷屏
             }
         }
     }
+    cout<<1;
     
 }
-void PageLibPreprocessor::cutRedundantPages(){
-
+bool PageLibPreprocessor::cutRedundantPages(string text,vector<uint64_t>& helper){
+    uint64_t simText=_jieba->make(text,TOPNVAL);
+    for(auto& t:helper){
+        if(_jieba->isEqual(t,simText,3)){
+            LOG_DEBUG("in same as text is pushed");
+            return 0;
+        }
+    }
+    helper.push_back(simText);
+    return 1;
 }//去重
-void PageLibPreprocessor::buildInvertIndex(){
-
+void PageLibPreprocessor::buildInvertIndex(string& text,unordered_map<string,int>& baner,int docid){
+    vector<string> temp=SplitTool::getPtr()->cut(text);
+    for(auto &t:temp){
+        
+    }
 }
 void PageLibPreprocessor::storeOnDisk(int fd,string& text){
     ::write(fd,text.c_str(),text.size()+1);

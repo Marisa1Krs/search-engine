@@ -18,7 +18,7 @@ string logPath="/home/marisa/code1/search-engine/log/log.txt";
 
 int main()
 {
-    mylog::init(logPath,4096,LOG_DEBUG);
+    mylog::init(logPath,4096,LOG_INFO);
     // string cnt="/home/marisa/code1/search-engine/data/yuliao/chinese";
     // DictProducer temp(cnt,SplitTool::getPtr());
     // temp.buildCnDict();

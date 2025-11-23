@@ -31,7 +31,7 @@ DictProducer::DictProducer(const string &dir)
 DictProducer::DictProducer(const string &dir, SplitTool *tool)
     : _files(), _splitTool(tool), _dict()
 {
-    LOG_INFO("Create DictProducer ,dir is %s", dir.c_str());
+    LOG_DEBUG("Create DictProducer ,dir is %s", dir.c_str());
     DIR *fileDir = opendir(dir.c_str());
     if (fileDir == nullptr)
     {
@@ -169,9 +169,9 @@ void DictProducer::buildEnDict()
         }
         ::read(readFd, englishBuf, 6488666 + 5);
         washWordsEn(englishBuf);
-        LOG_INFO("wash success path:%s",t.c_str());
+        LOG_DEBUG("wash success path:%s",t.c_str());
         loadDict(englishBuf, mp ,6488666 + 5);
-        LOG_INFO("load success path:%s",t.c_str());
+        LOG_DEBUG("load success path:%s",t.c_str());
         memset(englishBuf, 0, 6488666 + 5);
     }
 }
@@ -211,9 +211,9 @@ void DictProducer::buildCnDict() {
         }
         ::read(readFd, chineseBuf,100000);
         washWordsCn(chineseBuf);
-        LOG_INFO("wash success path:%s",t.c_str());
+        LOG_DEBUG("wash success path:%s",t.c_str());
         loadDict(chineseBuf, mp, 100000);
-        LOG_INFO("load success path:%s",t.c_str());
+        LOG_DEBUG("load success path:%s",t.c_str());
         memset(chineseBuf, 0, 100000);
     }
 }
