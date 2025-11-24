@@ -40,5 +40,5 @@ bool SplitTool::isEqual(uint64_t a,uint64_t b){
     return simHelper.isEqual(a,b);//默认海明距离小于3时相等
 }
 bool SplitTool::isEqual(uint64_t a,uint64_t b,int c){
-    return simHelper.isEqual(a,b,c);//默认海明距离小于3时相等
+    return simHelper.isEqual(a,b,c);
 }
