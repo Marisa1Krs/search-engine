@@ -2,6 +2,7 @@
 #include <dirent.h>
 #include"mylog.h"
 #include"tinyxml2.h"
+PageLibPreprocessor* PageLibPreprocessor::_ptr=nullptr;
 const int TOPNVAL=10;
 const char *banPathEn1 = "/home/marisa/code1/search-engine/data/yuliao/stop_words_eng.txt";
 const char *banPathCn1 = "/home/marisa/code1/search-engine/data/yuliao/stop_words_zh.txt";
@@ -126,6 +127,47 @@ bool PageLibPreprocessor::cutRedundantPages(string text,vector<uint64_t>& helper
     helper.push_back(simText);
     return 1;
 }//去重
+std::string keepChineseAndLetters(const std::string& input) {
+    std::string result;
+    size_t i = 0;
+    const size_t input_len = input.size();
+
+    while (i < input_len) {
+        // 转换为 unsigned char 避免有符号字符的判断错误（如 0x80 以上被解析为负数）
+        unsigned char current_byte = static_cast<unsigned char>(input[i]);
+
+        // 1. 匹配英文字母（1字节 UTF-8，即 ASCII 字母）
+        if ((current_byte >= 'a' && current_byte <= 'z') || 
+            (current_byte >= 'A' && current_byte <= 'Z')) {
+            result.push_back(input[i]);
+            ++i;
+        }
+        // 2. 匹配 UTF-8 中文（3字节编码：首字节 0xE0-0xEF，后续两字节 0x80-0xBF）
+        else if (current_byte >= 0xE0 && current_byte <= 0xEF) {
+            // 确保后续还有 2 个字节（避免不完整的 UTF-8 序列导致乱码）
+            if (i + 2 < input_len) {
+                unsigned char byte1 = static_cast<unsigned char>(input[i+1]);
+                unsigned char byte2 = static_cast<unsigned char>(input[i+2]);
+                // 验证后续两字节是否符合 UTF-8 续节规则（0x80-0xBF）
+                if ((byte1 >= 0x80 && byte1 <= 0xBF) && 
+                    (byte2 >= 0x80 && byte2 <= 0xBF)) {
+                    // 保留完整的 3 字节中文字符
+                    result.append(input.substr(i, 3));
+                    i += 3;  // 跳过已处理的 3 字节
+                    continue;
+                }
+            }
+            // 若后续字节不完整/无效，跳过当前字节（避免乱码）
+            ++i;
+        }
+        // 3. 其他字符（数字、标点、空格、其他多字节符号等）直接跳过
+        else {
+            ++i;
+        }
+    }
+
+    return result;
+}
 void PageLibPreprocessor::buildInvertIndex(){
     int banFd = open(banPathCn1, O_RDONLY); // 加载停用词
     char buf[8192];
@@ -158,7 +200,6 @@ void PageLibPreprocessor::buildInvertIndex(){
     }
 
     vector<map<string,int>> dict;
-    map<string,int> dictAll;
     string buffer; 
     for (const auto& item : _offsetLib) {
         int docId = item.first + 1;        
@@ -265,6 +306,117 @@ void PageLibPreprocessor::buildInvertIndex(){
 
     LOG_INFO("build invertIndex suess");
     close(fd);
+}
+double abs1(double x){
+    if(x<0)return -x;
+    return x;
+}
+json PageLibPreprocessor::find(const string& str){
+    string temp=str;
+    map<string,string> ans;
+    string pathWebPage=_conf.getConfigMap()["webPagePath"];
+    int fd = open(pathWebPage.c_str(), O_RDONLY);
+    auto weights=SplitTool::getPtr()->extract(temp,5);
+    double df = 0.0;
+    vector<double> simVector;
+    for(auto &item:weights){
+        auto t=item.first;
+    // auto itDF = dictAll.find(t);
+    //     if (itDF != dictAll.end()) {
+    //         df = static_cast<double>(itDF->second);
+    //     } else {
+    //     // 如果全局词典里没有这个词，设为0 (后面加1避免除零)
+    //         df = 0.0;
+    //     }
+    //     double idf = log2(dictAll.size() / (df + 1));
+        double w = item.second ;
+        simVector.push_back(w);
+    }
+    set<int> set_intersection_result;
+    set<int> set1;
+    set<int> set2;
+
+
+    if(weights.size())
+    for(auto &t:_invertIndex[weights[0].first]){
+        set1.insert(t.first);
+    }
+    else
+    return ans;
+
+    for(int i=1;i<weights.size();i++){
+    for(auto &t:_invertIndex[weights[i].first]){
+        set2.insert(t.first);
+    }
+    // 使用 std::set_intersection 取交集
+    set_intersection(
+        set1.begin(), set1.end(),
+        set2.begin(), set2.end(),
+        // 使用 std::inserter 将结果插入到新的 set 中
+        std::inserter(set_intersection_result, set_intersection_result.begin())
+    );
+    set2.clear();
+    set1=set_intersection_result;
+    set_intersection_result.clear();
+ }
+
+
+  
+    vector<pair<double,int>> helper;
+    //取a向量的模
+    double moda=0;
+    for(auto &t:simVector){
+        moda+=t*t;
+    }
+    moda=sqrt(moda);
+    
+    for(auto &docid:set1){
+        vector<double> simVectorb;
+    for(auto &item:weights){
+        for(auto &t:_invertIndex[item.first]){
+            if(t.first==docid){
+                simVectorb.push_back(t.second);
+            }
+        }    
+     }
+     double modb=0;
+     double mutlab=0;//a和b的点积
+     for(auto &t:simVectorb){
+         modb+=t*t;
+     }
+        modb=sqrt(modb);
+     for(int i=0;i<simVector.size();i++){
+        mutlab+=simVector[i]*simVectorb[i];
+     }
+      helper.push_back({mutlab/(moda+modb),docid});
+    }
+      sort(helper.begin(),helper.end());
+      string buffer;
+      for(int i=0;i<min(static_cast<int>(helper.size()),1);i++){
+        int docId = helper[i].second ;        
+        off_t offset = _offsetLib[docId-1].first; 
+        size_t length =_offsetLib[docId-1].second;
+        buffer.resize(length);
+        if (lseek(fd, offset, SEEK_SET) == -1) {
+            perror("lseek error");
+            continue;
+        }
+        ssize_t bytesRead = read(fd, &buffer[0], length);
+        XMLDocument doc;
+        XMLError err = doc.Parse(buffer.c_str());
+        if (err != XML_SUCCESS) {
+            LOG_ERROR("parse xml flase");
+            continue;
+        }
+        XMLElement* root=doc.FirstChildElement("doc");
+        XMLElement* title=root->FirstChildElement("title");
+        XMLElement* url=root->FirstChildElement("url");
+        XMLElement* content=root->FirstChildElement("content");
+        ans["title"]=title->GetText();
+        ans["url"]=url->GetText();
+        ans["content"]=content->GetText();
+      }
+    return ans;
 }
 void PageLibPreprocessor::storeOnDisk(int fd,string& text){
     ::write(fd,text.c_str(),text.size()+1);

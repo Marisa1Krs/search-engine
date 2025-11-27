@@ -58,7 +58,13 @@ vector<string> splitBySpace(const std::string &input)
 }
 void msgTask(const shared_ptr<TcpConnetion> &con, string &msg)
 {
-    
+    LOG_INFO("%s",msg.c_str());
+    json msgJson;
+    if(msg[0]=='/')
+    msgJson=PageLibPreprocessor::getPtr()->find(msg.substr(1,msg.size()-1));
+    else
+    msgJson=DictProducer::getPtr()->find(msg,5);
+    con->sendInLoop(msgJson.dump()+"\n");
 }
 void onNewConnet(const shared_ptr<TcpConnetion> &con)
 {
@@ -77,16 +83,18 @@ void onClose(const shared_ptr<TcpConnetion> &con)
 }
 int main()
 {
-    mylog::init(logPath,4096,LOG_DEBUG);
-    // string cnt="/home/marisa/code1/search-engine/data/yuliao/chinese";
+    mylog::init(logPath,4096,LOG_INFO);
+     string cnt="/home/marisa/code1/search-engine/data/yuliao/chinese";
     // DictProducer temp(cnt,SplitTool::getPtr());
     // temp.buildCnDict();
     // sleep(5);
+    DictProducer::getPtr()->buildEnDict();
+    DictProducer::getPtr()->buildCnDict();
     string confPath="/home/marisa/code1/search-engine/config/serch.conf";
-    Configer temp(confPath);
-    PageLibPreprocessor pageLib(temp);
-    pageLib.doProcess();
-    server = new TcpServer("127.0.0.1", "8080");
+    Configer con(confPath);
+    PageLibPreprocessor::init(con);
+    PageLibPreprocessor::getPtr()->doProcess();
+    server = new TcpServer("192.168.159.129", "8080");
     server->setCallBack(onNewConnet, onMessage, onClose);
     tpool = new threadpool(4, 4);
     tpool->start();
