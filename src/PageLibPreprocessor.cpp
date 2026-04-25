@@ -3,9 +3,6 @@
 #include"mylog.h"
 #include"tinyxml2.h"
 PageLibPreprocessor* PageLibPreprocessor::_ptr=nullptr;
-const int TOPNVAL=10;
-const char *banPathEn1 = "/home/marisa/code1/search-engine/data/yuliao/stop_words_eng.txt";
-const char *banPathCn1 = "/home/marisa/code1/search-engine/data/yuliao/stop_words_zh.txt";
 using namespace tinyxml2;
 PageLibPreprocessor::PageLibPreprocessor(Configer& conf)
 :_conf(conf)
@@ -117,7 +114,8 @@ void PageLibPreprocessor::readInfoFromFile(){
     close(storeFd);
 }
 bool PageLibPreprocessor::cutRedundantPages(string text,vector<uint64_t>& helper){
-    uint64_t simText=_jieba->make(text,TOPNVAL);
+    int topNVal = std::stoi(_conf.getConfigMap()["topNVal"]);
+    uint64_t simText=_jieba->make(text,topNVal);
     for(auto& t:helper){
         if(_jieba->isEqual(t,simText,3)){
             LOG_DEBUG("in same as text is pushed");
@@ -181,13 +179,16 @@ std::string stripHtml(const std::string& input) {
     return decodeHtmlEntities(result);
 }
 void PageLibPreprocessor::buildInvertIndex(){
-    int banFd = open(banPathCn1, O_RDONLY); // 加载停用词
-    char buf[8192];
-    memset(buf, 0, 8192);
-    ::read(banFd, buf, 8192);
+    int stopFileBufSize = std::stoi(_conf.getConfigMap()["stopFileBufSize"]);
+    string stopWordsCnPath = _conf.getConfigMap()["stopWordsCnPath"];
+    int banFd = open(stopWordsCnPath.c_str(), O_RDONLY); // 加载停用词
+    char* buf = new char[stopFileBufSize];
+    memset(buf, 0, stopFileBufSize);
+    ::read(banFd, buf, stopFileBufSize);
+    close(banFd);
     unordered_map<string, int> mp;
     string tempWord;
-    for (int i = 0; i < 8192; i++)
+    for (int i = 0; i < stopFileBufSize; i++)
     {
         if (buf[i] == '\r')
         {
@@ -204,6 +205,7 @@ void PageLibPreprocessor::buildInvertIndex(){
             tempWord.push_back(buf[i]);
         }
     }
+    delete[] buf;
     string pathWebPage=_conf.getConfigMap()["webPagePath"];
     int fd = open(pathWebPage.c_str(), O_RDONLY);
     if (fd == -1) {
@@ -371,7 +373,7 @@ double abs1(double x){
 }
 json PageLibPreprocessor::find(const string& str){
     string temp=str;
-    map<string,string> ans;
+    json ans = json::array();
     string pathWebPage=_conf.getConfigMap()["webPagePath"];
     int fd = open(pathWebPage.c_str(), O_RDONLY);
     if (fd == -1) {
@@ -487,9 +489,10 @@ json PageLibPreprocessor::find(const string& str){
           LOG_INFO("FIND: top result: docId=%d, similarity=%f", helper[0].second, helper[0].first);
       }
       string buffer;
-      for(int i=0;i<min(static_cast<int>(helper.size()),1);i++){
-        int docId = helper[i].second ;        
-        off_t offset = _offsetLib[docId-1].first; 
+      int maxResults = 5;
+      for(int i=0;i<min(static_cast<int>(helper.size()),maxResults);i++){
+        int docId = helper[i].second ;
+        off_t offset = _offsetLib[docId-1].first;
         size_t length =_offsetLib[docId-1].second;
         buffer.resize(length);
         if (lseek(fd, offset, SEEK_SET) == -1) {
@@ -507,9 +510,11 @@ json PageLibPreprocessor::find(const string& str){
         XMLElement* title=root->FirstChildElement("title");
         XMLElement* url=root->FirstChildElement("url");
         XMLElement* content=root->FirstChildElement("content");
-        ans["title"]=title->GetText();
-        ans["url"]=url->GetText();
-        ans["content"]=content->GetText();
+        json docJson;
+        docJson["title"]=title->GetText();
+        docJson["url"]=url->GetText();
+        docJson["content"]=content->GetText();
+        ans.push_back(docJson);
       }
     return ans;
 }

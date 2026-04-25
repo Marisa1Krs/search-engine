@@ -24,7 +24,7 @@ public:
     void buildEnDict();
     void buildCnDict();
     void storeDict(const char* filepath);//将词典写入文件
-    json find(string& words,int topK);
+    json find(const string& words,int topK);
     void showFiles();
     void showDict();
     void getFiles();
@@ -34,7 +34,16 @@ public:
     // 从配置文件初始化字典构建器的单例
     static void init(Configer& conf) {
         if (_ptr == nullptr) {
-            string chineseDir = conf.getConfigMap()["chineseDir"];
+            // 必须先初始化 SplitTool（它需要配置中的 jieba 词典路径）
+            SplitTool::init(conf);
+            auto& cfg = conf.getConfigMap();
+            string chineseDir = cfg["chineseDir"];
+            // 从配置中读取停用词路径和缓冲区大小
+            _stopWordsEnPath = cfg["stopWordsEnPath"];
+            _stopWordsCnPath = cfg["stopWordsCnPath"];
+            _englishBufSize = std::stoi(cfg["englishBufSize"]);
+            _chineseBufSize = std::stoi(cfg["chineseBufSize"]);
+            _stopFileBufSize = std::stoi(cfg["stopFileBufSize"]);
             _ptr = new DictProducer(chineseDir, SplitTool::getPtr());
         }
     }
@@ -50,6 +59,12 @@ private:
     SplitTool* _splitTool=nullptr ;
     map<string,set<int>> _index;
     static DictProducer* _ptr;
+    // 从配置文件读取的路径和缓冲区大小（在 init() 中设置）
+    static string _stopWordsEnPath;
+    static string _stopWordsCnPath;
+    static int _englishBufSize;
+    static int _chineseBufSize;
+    static int _stopFileBufSize;
     void operator delete(void* temp){
         ::delete(DictProducer*)temp;
     }

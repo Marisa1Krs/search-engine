@@ -1,9 +1,11 @@
 #include "SplitTool.h"
+#include "mylog.h"
 
 SplitTool* SplitTool::_ptr = nullptr;
-SplitTool::SplitTool()
-:cutHelper(DICT_PATH,HMM_PATH,USER_DICT_PATH,IDF_PATH,STOP_WORD_PATH)
-,simHelper(DICT_PATH,HMM_PATH,IDF_PATH,STOP_WORD_PATH)
+SplitTool::SplitTool(const string& dictPath, const string& hmmPath, const string& userDictPath,
+                     const string& idfPath, const string& stopWordPath)
+:cutHelper(dictPath, hmmPath, userDictPath, idfPath, stopWordPath)
+,simHelper(dictPath, hmmPath, idfPath, stopWordPath)
 {
 
 }
@@ -12,9 +14,22 @@ SplitTool::~SplitTool()
 {
 
 }
+void SplitTool::init(Configer& conf) {
+    if (_ptr == nullptr) {
+        auto& cfg = conf.getConfigMap();
+        _ptr = new SplitTool(
+            cfg["jiebaDictPath"],
+            cfg["hmmPath"],
+            cfg["userDictPath"],
+            cfg["idfPath"],
+            cfg["jiebaStopWordPath"]
+        );
+    }
+}
 SplitTool* SplitTool::getPtr(){
     if(_ptr==nullptr){
-        _ptr=new SplitTool();
+        LOG_ERROR("SplitTool::getPtr() called before init()!");
+        return nullptr;
     }
     return _ptr;
 }

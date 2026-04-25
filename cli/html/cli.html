@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geek Search</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* 搜索高亮词的经典红色样式 */
+        .highlight { color: #cc0000; font-weight: normal; }
+    </style>
+</head>
+<body class="bg-[#f8f9fa] text-gray-800 min-h-screen flex flex-col items-center pt-32 transition-all duration-500" id="body-container">
+
+    <h1 class="text-5xl font-bold text-blue-600 mb-8 transition-all duration-500 flex items-center gap-2" id="logo">
+        <svg class="w-12 h-12 text-blue-600" fill="currentColor" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        Geek Search
+    </h1>
+
+    <div class="relative w-full max-w-3xl px-4 z-50">
+        <div class="relative flex items-center w-full h-14 rounded-full focus-within:shadow-md bg-white overflow-hidden border border-gray-200 hover:shadow-sm transition-shadow">
+            <div class="grid place-items-center h-full w-14 text-blue-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </div>
+            <input
+                class="peer h-full w-full outline-none text-[16px] text-gray-800 pr-4"
+                type="text"
+                id="search-input"
+                placeholder="输入你想探索的关键词..."
+                autocomplete="off"
+            />
+        </div>
+
+        <div id="suggest-box" class="absolute hidden w-[calc(100%-2rem)] mt-2 mx-4 bg-white border border-gray-100 rounded-xl shadow-lg overflow-hidden z-50">
+            <ul id="suggest-list" class="flex flex-col py-2"></ul>
+        </div>
+    </div>
+
+    <div id="error-msg" class="hidden mt-6 px-6 py-3 bg-red-50 text-red-600 rounded-lg border border-red-100 shadow-sm text-sm"></div>
+
+    <div id="result-container" class="hidden w-full max-w-4xl mt-8 px-4 pb-20">
+        <div id="search-stats" class="text-sm text-gray-500 mb-6 pl-2"></div>
+        <div id="result-list" class="flex flex-col gap-8 bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+            </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://192.168.159.129:8080';
+        
+        const input = document.getElementById('search-input');
+        const suggestBox = document.getElementById('suggest-box');
+        const suggestList = document.getElementById('suggest-list');
+        const resultContainer = document.getElementById('result-container');
+        const resultList = document.getElementById('result-list');
+        const searchStats = document.getElementById('search-stats');
+        const errorMsg = document.getElementById('error-msg');
+        const logo = document.getElementById('logo');
+        const bodyContainer = document.getElementById('body-container');
+
+        let debounceTimer;
+
+        input.addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            clearTimeout(debounceTimer);
+            if (!query) { suggestBox.classList.add('hidden'); return; }
+            debounceTimer = setTimeout(() => { fetchSuggest(query); }, 200);
+        });
+
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const query = input.value.trim();
+                if (query) { suggestBox.classList.add('hidden'); doSearch(query); }
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!input.contains(e.target) && !suggestBox.contains(e.target)) suggestBox.classList.add('hidden');
+        });
+
+        async function fetchSuggest(query) {
+            try {
+                const res = await fetch(`${API_BASE}/suggest?q=${encodeURIComponent(query)}`);
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data && data.length > 0) renderSuggest(data);
+                else suggestBox.classList.add('hidden');
+            } catch (err) { console.error('Suggest Error:', err); }
+        }
+
+        function renderSuggest(items) {
+            suggestList.innerHTML = '';
+            items.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'px-5 py-2.5 hover:bg-gray-50 cursor-pointer text-gray-700 text-[15px] flex items-center gap-3 transition-colors';
+                li.innerHTML = `<svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg> <span>${item}</span>`;
+                li.addEventListener('click', () => {
+                    input.value = item;
+                    suggestBox.classList.add('hidden');
+                    doSearch(item);
+                });
+                suggestList.appendChild(li);
+            });
+            suggestBox.classList.remove('hidden');
+        }
+
+        async function doSearch(query) {
+            errorMsg.classList.add('hidden');
+            resultContainer.classList.add('hidden');
+            
+            // 样式上移，进入搜索状态
+            bodyContainer.classList.remove('pt-32', 'bg-[#f8f9fa]');
+            bodyContainer.classList.add('pt-8', 'bg-white');
+            logo.classList.remove('text-5xl', 'mb-8');
+            logo.classList.add('text-3xl', 'mb-6');
+
+            try {
+                const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`);
+                if (res.status === 503) return showError("服务器正在初始化倒排索引，请稍后再试");
+                if (!res.ok) return showError(`HTTP Error: ${res.status}`);
+
+                let data = await res.json();
+                
+                // 兼容处理：如果后端返回的是单个对象，强转为数组
+                if (!Array.isArray(data)) {
+                    data = [data];
+                }
+
+                if (data.length > 0) {
+                    renderResultList(data, query);
+                } else {
+                    showError("未找到相关文档，换个词试试？");
+                }
+            } catch (err) {
+                showError("网络请求失败，请检查 C++ 后端是否启动");
+                console.error('Search Error:', err);
+            }
+        }
+
+        function renderResultList(articles, query) {
+            resultList.innerHTML = '';
+            searchStats.textContent = `为您找到约 ${articles.length} 条结果`;
+            searchStats.classList.remove('hidden');
+
+            articles.forEach(article => {
+                // 1. 提取文本：剥离 HTML 标签，获取纯净摘要
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = article.content || '';
+                let rawText = tempDiv.textContent || tempDiv.innerText || '';
+                // 清理多余空格和换行
+                rawText = rawText.replace(/\s+/g, ' ').trim();
+
+                // 2. 提取缩略图：用正则找文章里的第一张图片
+                let thumbUrl = null;
+                const imgMatch = article.content.match(/<img[^>]+src=["']([^"']+)["']/i);
+                if (imgMatch && imgMatch[1]) {
+                    thumbUrl = imgMatch[1];
+                    // 处理人民网相对路径，如果不完整就补齐
+                    if (thumbUrl.startsWith('/')) {
+                        thumbUrl = 'http://hongmu.people.com.cn' + thumbUrl;
+                    }
+                }
+
+                // 3. 构建单条结果卡片 HTML
+                let itemHtml = `
+                <div class="flex flex-col gap-2 pb-6 border-b border-gray-100 last:border-0 last:pb-0">
+                    <div class="flex items-center gap-2">
+                        <img src="https://www.google.com/s2/favicons?domain=${new URL(article.url || 'http://localhost').hostname}" class="w-4 h-4 rounded-sm" onerror="this.style.display='none'">
+                        <a href="${article.url}" target="_blank" class="text-xs text-[#202124] truncate max-w-sm hover:underline">${article.url}</a>
+                    </div>
+                    
+                    <a href="${article.url}" target="_blank" class="text-xl font-medium text-[#1a0dab] hover:underline block truncate">
+                        ${article.title}
+                    </a>
+                    
+                    <div class="flex gap-4 items-start mt-1">
+                        ${thumbUrl ? `
+                        <div class="w-28 h-20 flex-shrink-0 rounded-lg overflow-hidden border border-gray-100 shadow-sm mt-1 hidden sm:block">
+                            <img src="${thumbUrl}" class="w-full h-full object-cover" onerror="this.parentElement.style.display='none'">
+                        </div>` : ''}
+                        
+                        <p class="text-[#4d5156] text-[14px] leading-[1.6] line-clamp-3 flex-1 break-words">
+                            ${rawText}
+                        </p>
+                    </div>
+                </div>`;
+
+                resultList.innerHTML += itemHtml;
+            });
+
+            resultContainer.classList.remove('hidden');
+        }
+
+        function showError(msg) {
+            errorMsg.textContent = msg;
+            errorMsg.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

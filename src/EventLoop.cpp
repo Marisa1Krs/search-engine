@@ -1,9 +1,11 @@
 #include "EventLoop.h"
 #include"TcpConnetion.h"
-EventLoop::EventLoop(Acceptor& acceptor)
-:acceptor(acceptor)
+
+// 子 EventLoop：无 listenFd，仅处理已建立连接的 I/O
+EventLoop::EventLoop()
+:listenFd(-1)
 ,epoll_fd(createEpollFd())
-,isLoop(0)
+,isLoop(false)
 ,evtList(1024)
 ,newConnetCallBack()
 ,sendMessgeCallBack()
@@ -12,23 +14,43 @@ EventLoop::EventLoop(Acceptor& acceptor)
 ,mx()
 ,Pendings()
 {
-    addEpollFd(acceptor.getListenFd());//监听listenFd
-    addEpollFd(evtFd);//监听evtFd
+    addEpollFd(evtFd);
 }
+
+// 主 EventLoop：监听 listenFd，处理新连接
+EventLoop::EventLoop(int fd)
+:listenFd(fd)
+,epoll_fd(createEpollFd())
+,isLoop(false)
+,evtList(1024)
+,newConnetCallBack()
+,sendMessgeCallBack()
+,closeConnetCallBack()
+,evtFd(createEventFd())
+,mx()
+,Pendings()
+{
+    addEpollFd(listenFd);
+    addEpollFd(evtFd);
+}
+
 EventLoop::~EventLoop(){
     std::cout<<"eventloop unloop"<<std::endl;
 }
+
 void EventLoop::loop(){
-    isLoop=1;
+    isLoop=true;
     while(isLoop){
         waitEpollFd();
     }
 }
+
 void EventLoop::unloop(){
-    isLoop=0;
+    isLoop=false;
 }
+
 void EventLoop::waitEpollFd(){
-    int num=epoll_wait(epoll_fd,&*evtList.begin(),1024,-1);//等待3秒，没有报错
+    int num=epoll_wait(epoll_fd,&*evtList.begin(),1024,-1);
     if(num==-1){
         perror("epoll_wait");
     }   
@@ -36,8 +58,11 @@ void EventLoop::waitEpollFd(){
         std::cout<<"dont have fd need to finish"<<std::endl;
     }
     for(int i=0;i<num;i++){
-        if(evtList[i].data.fd==acceptor.getListenFd()){
-                handleNewConnection();
+        // 主 EventLoop：listenFd 就绪，调用 accept 回调（由 TcpServer 注册）
+        if(listenFd!=-1 && evtList[i].data.fd==listenFd){
+            if(acceptCallback){
+                acceptCallback();
+            }
         }
         else if(evtList[i].data.fd==evtFd){
             handleread();
@@ -45,36 +70,32 @@ void EventLoop::waitEpollFd(){
         }
         else{
             char buf[100];
-            if(recv(evtList.at(i).data.fd,buf,1,MSG_PEEK)<=0||buf=="/quit"){
+            if(recv(evtList.at(i).data.fd,buf,1,MSG_PEEK)<=0){
                 delEpollFd(evtList.at(i).data.fd);
                 close(evtList.at(i).data.fd);
-                connects[evtList.at(i).data.fd]->handleCloseConnetCallBack();
+                auto it = connects.find(evtList.at(i).data.fd);
+                if(it != connects.end()){
+                    it->second->handleCloseConnetCallBack();
+                }
                 continue;
             }
             handleMessage(evtList.at(i).data.fd);
         }
     }
 }
-void EventLoop::handleNewConnection(){
-    int fd=acceptor.accept();
-    if(fd<0){
-        perror("accept");
-    }
-    addEpollFd(fd);
-   TcpConnetionPtr con(new TcpConnetion(fd,this));//拷贝构造
-    connects[fd]=con;
-    con->setNewConnetCallBack(newConnetCallBack);
-    con->setSendMessgeCallBack(sendMessgeCallBack);
-    con->setCloseConnetCallBack(closeConnetCallBack);
-    con->handleNewConnetCallBack();
-}
+
 void EventLoop::handleMessage(int fd){
-    connects[fd]->handleSendMessgeCallBack();
+    auto it = connects.find(fd);
+    if(it != connects.end()){
+        it->second->handleSendMessgeCallBack();
+    }
 }
+
 int EventLoop::createEpollFd(){
     int fd=epoll_create(10);
     return fd;
 }
+
 void EventLoop::addEpollFd(int fd){
     struct epoll_event temp;
     temp.data.fd=fd;
@@ -84,6 +105,7 @@ void EventLoop::addEpollFd(int fd){
         perror("epoll_ctl add fd");
     }
 }
+
 void EventLoop::delEpollFd(int fd){
     struct epoll_event temp;
     temp.data.fd=fd;
@@ -93,19 +115,28 @@ void EventLoop::delEpollFd(int fd){
         perror("epoll_ctl del fd");
     }
 }
-void EventLoop::setNewConnetCallBack(TcpConnetionCallBack&& cb){
+
+void EventLoop::setNewConnetCallBack(TcpConnetionCallBack cb){
         newConnetCallBack=std::move(cb);
 }
-void EventLoop::setSendMessgeCallBack(TcpConnetionCallBack&& cb){
+
+void EventLoop::setSendMessgeCallBack(TcpConnetionCallBack cb){
         sendMessgeCallBack=std::move(cb);
 }
-void EventLoop::setCloseConnetCallBack(TcpConnetionCallBack&& cb){
+
+void EventLoop::setCloseConnetCallBack(TcpConnetionCallBack cb){
         closeConnetCallBack=std::move(cb);
 }
+
+void EventLoop::setAcceptCallback(AcceptCallback&& cb){
+        acceptCallback=std::move(cb);
+}
+
 int EventLoop::createEventFd(){
         int fd=eventfd(0,0);
         return fd;
 }
+
 void EventLoop::handleread(){
     uint64_t u = 1;
     int err=read(evtFd,&u,sizeof(uint64_t));
@@ -113,6 +144,7 @@ void EventLoop::handleread(){
         perror("read evtfd");
     }    
 }
+
 void EventLoop::wakeup(){
     uint64_t u = 1;
     ssize_t s = write(evtFd, &u, sizeof(uint64_t));
@@ -120,6 +152,7 @@ void EventLoop::wakeup(){
         perror("write");
     }
 }
+
 void EventLoop::doPendingFunctors(){
     mx.lock();
     vector<Functor> temp;
@@ -127,9 +160,21 @@ void EventLoop::doPendingFunctors(){
     mx.unlock();
     for(auto &cb:temp)cb();
 }
+
 void EventLoop::runInLoop(Functor&& cb){
     mx.lock();
     Pendings.push_back(cb);
     mx.unlock();
     wakeup();
+}
+
+void EventLoop::addNewConnection(int fd){
+    // 将客户端 fd 加入此 EventLoop 的 epoll 并创建 TcpConnetion
+    addEpollFd(fd);
+    TcpConnetionPtr con(new TcpConnetion(fd, this));
+    connects[fd] = con;
+    con->setNewConnetCallBack(newConnetCallBack);
+    con->setSendMessgeCallBack(sendMessgeCallBack);
+    con->setCloseConnetCallBack(closeConnetCallBack);
+    con->handleNewConnetCallBack();
 }

@@ -4,7 +4,7 @@ taskQueue::taskQueue(int cap)
 :notEmpty()
 ,notFull()
 ,mx()
-,captain(4)
+,captain(cap > 0 ? cap : 4)
 ,size(0)
 ,que()
 ,wakeUpFlag(1)
@@ -35,6 +35,7 @@ Elemtype taskQueue::pop(){
     Elemtype temp=que.front();
     que.pop();
     umx.unlock();
+    notFull.notify_one();  // 通知生产者：队列有空间了，可以继续 push
     return temp;
 }
 void taskQueue::wakeUp(){

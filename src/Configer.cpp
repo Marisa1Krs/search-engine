@@ -1,12 +1,12 @@
 #include "Configer.h"
 #include<string.h>
-#include"mylog.h"
 #include<fstream>
+#include<iostream>
 Configer::Configer(const string& path)
 {
     std::ifstream ifs(path);
     if (!ifs.is_open()) {
-        LOG_ERROR("cannot open config file: %s", path.c_str());
+        std::cerr << "[Configer] 错误：无法打开配置文件 " << path << std::endl;
         return;
     }
     std::string line;
@@ -18,7 +18,7 @@ Configer::Configer(const string& path)
         // 查找冒号分隔符
         size_t colonPos = line.find(':');
         if (colonPos == std::string::npos) {
-            LOG_WARN("invalid config line (no colon): %s", line.c_str());
+            std::cerr << "[Configer] 警告：无效配置行（缺少冒号）: " << line << std::endl;
             continue;
         }
         std::string key = line.substr(0, colonPos);
@@ -39,7 +39,6 @@ Configer::Configer(const string& path)
         trim(val);
         if (key.empty()) continue;
         _configMap[key] = val;
-        LOG_INFO("读取配置成功 key=%s,val=%s", key.c_str(), val.c_str());
     }
     ifs.close();
 }

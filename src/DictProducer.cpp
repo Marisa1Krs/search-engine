@@ -1,10 +1,14 @@
 #include "DictProducer.h"
 
 using namespace std;
-const char *banPathEn = "/home/marisa/code1/search-engine/data/yuliao/stop_words_eng.txt";
-const char *banPathCn = "/home/marisa/code1/search-engine/data/yuliao/stop_words_zh.txt";
 
-// 后续改成配置文件
+// 静态成员变量定义
+string DictProducer::_stopWordsEnPath;
+string DictProducer::_stopWordsCnPath;
+int DictProducer::_englishBufSize = 6488671;
+int DictProducer::_chineseBufSize = 100000;
+int DictProducer::_stopFileBufSize = 8192;
+
 DictProducer* DictProducer::_ptr=nullptr;
 DictProducer::DictProducer(const string &dir)
     : _files(), _dict()
@@ -111,7 +115,8 @@ void DictProducer::loadDict(char *words, unordered_map<string, int> &mp,size_t s
 }
 void DictProducer::washWordsEn(char *words)
 {
-    for (int i = 0; i < 6488671; i++)
+    size_t len = strlen(words);
+    for (int i = 0; i < len; i++)
     {
         if (words[i] >= 'a' && words[i] <= 'z')
         {
@@ -138,13 +143,14 @@ void DictProducer::washWordsCn(char* words){
 }
 void DictProducer::buildEnDict()
 {
-    int banFd = open(banPathEn, O_RDONLY); // 加载停用词
-    char buf[8192];
-    memset(buf, 0, 8192);
-    ::read(banFd, buf, 8192);
+    int banFd = open(_stopWordsEnPath.c_str(), O_RDONLY); // 加载停用词
+    char buf[_stopFileBufSize];
+    memset(buf, 0, _stopFileBufSize);
+    ::read(banFd, buf, _stopFileBufSize);
+    close(banFd);
     unordered_map<string, int> mp;
     string tempWord;
-    for (int i = 0; i < 8192; i++)
+    for (int i = 0; i < _stopFileBufSize; i++)
     {
         if (buf[i] == '\r')
         {
@@ -161,8 +167,8 @@ void DictProducer::buildEnDict()
             tempWord.push_back(buf[i]);
         }
     }
-    char englishBuf[6488666 + 5];
-    memset(englishBuf, 0, 6488666 + 5);
+    char* englishBuf = new char[_englishBufSize];
+    memset(englishBuf, 0, _englishBufSize);
     for (auto &t : _files)
     {
         int readFd = open(t.c_str(), O_RDONLY);
@@ -171,23 +177,25 @@ void DictProducer::buildEnDict()
             LOG_ERROR("read fall %s", t.c_str());
             perror("read");
         }
-        ::read(readFd, englishBuf, 6488666 + 5);
+        ::read(readFd, englishBuf, _englishBufSize);
         washWordsEn(englishBuf);
         LOG_DEBUG("wash success path:%s",t.c_str());
-        loadDict(englishBuf, mp ,6488666 + 5);
+        loadDict(englishBuf, mp, _englishBufSize);
         LOG_DEBUG("load success path:%s",t.c_str());
-        memset(englishBuf, 0, 6488666 + 5);
+        memset(englishBuf, 0, _englishBufSize);
         close(readFd);
     }
+    delete[] englishBuf;
 }
 void DictProducer::buildCnDict() {
-    int banFd = open(banPathCn, O_RDONLY); // 加载停用词
-    char buf[8192];
-    memset(buf, 0, 8192);
-    ::read(banFd, buf, 8192);
+    int banFd = open(_stopWordsCnPath.c_str(), O_RDONLY); // 加载停用词
+    char buf[_stopFileBufSize];
+    memset(buf, 0, _stopFileBufSize);
+    ::read(banFd, buf, _stopFileBufSize);
+    close(banFd);
     unordered_map<string, int> mp;
     string tempWord;
-    for (int i = 0; i < 8192; i++)
+    for (int i = 0; i < _stopFileBufSize; i++)
     {
         if (buf[i] == '\r')
         {
@@ -204,8 +212,8 @@ void DictProducer::buildCnDict() {
             tempWord.push_back(buf[i]);
         }
     }
-    char chineseBuf[100000];
-    memset(chineseBuf, 0, 100000);
+    char* chineseBuf = new char[_chineseBufSize];
+    memset(chineseBuf, 0, _chineseBufSize);
     for (auto &t : _files)
     {
         int readFd = open(t.c_str(), O_RDONLY);
@@ -214,14 +222,15 @@ void DictProducer::buildCnDict() {
             LOG_ERROR("read fall %s", t.c_str());
             perror("read");
         }
-        ::read(readFd, chineseBuf,100000);
+        ::read(readFd, chineseBuf,_chineseBufSize);
         washWordsCn(chineseBuf);
         LOG_DEBUG("wash success path:%s",t.c_str());
-        loadDict(chineseBuf, mp, 100000);
+        loadDict(chineseBuf, mp, _chineseBufSize);
         LOG_DEBUG("load success path:%s",t.c_str());
-        memset(chineseBuf, 0, 100000);
+        memset(chineseBuf, 0, _chineseBufSize);
         close(readFd);
     }
+    delete[] chineseBuf;
 }
 void DictProducer::storeDict(const char *filepath) {}
 void DictProducer::showFiles() {
@@ -304,93 +313,56 @@ std::vector<std::string> split_to_chars(const std::string& s) {
     return chars;
 }
 int minDistance(const std::string& word1_str, const std::string& word2_str) {
-    // 1. 将输入字符串分割成字符序列
     std::vector<std::string> word1 = split_to_chars(word1_str);
     std::vector<std::string> word2 = split_to_chars(word2_str);
-
-    int n = word1.size(); // 字符数
-    int m = word2.size(); // 字符数
-    
-    // 2. 初始化 DP 表：尺寸为 (n+1) x (m+1)
+    int n = word1.size();
+    int m = word2.size();
     std::vector<std::vector<int>> dp(n + 1, std::vector<int>(m + 1, 0));
-
-    // 3. 初始化边界条件
-    for (int i = 0; i <= n; i++) dp[i][0] = i; // 删除 i 个字符
-    for (int j = 0; j <= m; j++) dp[0][j] = j; // 插入 j 个字符
-
-    // 4. 填充 DP 表
+    for (int i = 0; i <= n; i++) dp[i][0] = i;
+    for (int j = 0; j <= m; j++) dp[0][j] = j;
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
-            // 关键修正：比较的是完整的字符（即 std::string 块）
-            if (word1[i] == word2[j]) { 
-                // 匹配或不需要操作
+            if (word1[i] == word2[j]) {
                 dp[i + 1][j + 1] = dp[i][j];
             } else {
-                // 不匹配时：
-                // 1. dp[i+1][j]：删除 word2[j] (从 word2 到 word1)
-                // 2. dp[i][j+1]：插入 word1[i] (从 word1 到 word2)
-                // 3. dp[i][j]：替换 word1[i] 为 word2[j]
-                
-                // 替换、删除、插入操作代价都为 1
                 dp[i + 1][j + 1] = std::min({
-                    dp[i + 1][j], // 删除/插入
-                    dp[i][j + 1], // 插入/删除
-                    dp[i][j]      // 替换
+                    dp[i + 1][j],
+                    dp[i][j + 1],
+                    dp[i][j]
                 }) + 1;
             }
         }
     }
-    
     return dp[n][m];
 }
-
-// 注意：原函数签名使用了 string&，为了修改方便，这里改为 const string&
 bool cmp(vector<int>& a,vector<int>& b) {
-    // 核心逻辑:
-    // 优先队列的比较器（如 std::less<T>）在返回 true 时，
-    // 表示“a < b”，即 a 的优先级低于 b（b 应该在堆顶）。
-    
-    // 1. 比较 a[0] 和 b[0]
     if (a[0] != b[0]) {
-        // 如果 a[0] < b[0]，则 a 优先级低于 b，返回 true (a < b)
         return a[0] > b[0];
-    } 
-    
-    // 2. 如果 a[0] == b[0]，比较 a[1] 和 b[1]
-    else {
-        // 如果 a[1] < b[1]，则 a 优先级低于 b，返回 true (a < b)
+    } else {
         return a[1] > b[1];
     }
 }
-json DictProducer::find(string& words,int topK){
+json DictProducer::find(const string& words,int topK){
     set<int> ansSet;
     for (int i = 0; i < words.size();) {
-        // 关键修正：使用括号确保先执行位与操作。
-        // 如果最高位为 0，则为单字节 ASCII 字符。
-        if ((words[i] & 0x80) == 0&&words[i]!='\n') { 
-            // 1. 处理单字节字符（英文、数字、标点符号）
-            // 确保不会超出字符串末尾
+        if ((words[i] & 0x80) == 0&&words[i]!='\n') {
             if (i < words.size()) {
                 for (auto& t : _index[words.substr(i, 1)])
                     ansSet.insert(t);
-                i++; // 步进 1 字节
+                i++;
             } else {
-                break; 
+                break;
             }
         } else {
-            // 2. 处理多字节字符（中文，假设为 3 字节 UTF-8）
-            // 检查剩余长度是否足够 3 字节
             if (i + 3 <= words.size()) {
                 for (auto& t : _index[words.substr(i, 3)])
                     ansSet.insert(t);
-                i += 3; // 步进 3 字节
+                i += 3;
             } else {
-                // 如果剩余字节不足 3 (可能是被截断的字符)，跳出循环
-                break; 
+                break;
             }
         }
     }
-    //全部候选词算一遍编辑距离，然后编辑距离和词频加入到一个vector<int>中，最后面再由hash表拿到词语，返回出去
     priority_queue<vector<int>,vector<vector<int>>,decltype(cmp)*> pq(cmp);
     for(auto &t:ansSet){
         int temp=minDistance(words,_dict[t].first);

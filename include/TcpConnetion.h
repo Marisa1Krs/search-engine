@@ -21,6 +21,8 @@ public:
     InetAddress getLocalAddr();
     InetAddress getPeerAddr();
     string receive();
+    // 读取完整 HTTP 请求（直到 \r\n\r\n）
+    string recvHttp();
     void send(const string &msg);
     string toString();
     void setNewConnetCallBack(TcpConnetionCallBack& cb);
