@@ -5,11 +5,13 @@
 #include"WebPage.h"
 #include"Configer.h"
 #include<vector>
+#include<map>
 #include<unordered_map>
 #include<string>
 #include"json.hpp"
 using namespace nlohmann;
 using std::vector;
+using std::map;
 using std::unordered_map;
 using std::string;
 
@@ -33,7 +35,7 @@ public:
     }
 private:
     SplitTool* _jieba;
-    unordered_map<int,pair<int,int>> _offsetLib;
+    map<int,pair<int,int>> _offsetLib;
     unordered_map<string,vector<pair<int,double>>> _invertIndex;
     void readInfoFromFile();//读内容
     bool cutRedundantPages(string text,vector<uint64_t>& helper);//去重

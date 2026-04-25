@@ -2,6 +2,7 @@
 #define DICTPRODUCER_H
 #pragma once
 #include"SplitTool.h"
+#include"Configer.h"
 #include<vector>
 #include<map>
 #include<string>
@@ -14,7 +15,6 @@ using namespace nlohmann;
 using std::vector;
 using std::map;
 using std::string;
-const string cnt="/home/marisa/code1/search-engine/data/yuliao/chinese";
 class DictProducer
 {
 public:
@@ -31,10 +31,14 @@ public:
     void pushDict(const string & word);
     DictProducer operator=(const DictProducer& temp)=delete;
     DictProducer(const DictProducer& temp)=delete;
-    static DictProducer* getPtr(){
-        if(_ptr==nullptr){
-            _ptr=new DictProducer(cnt,SplitTool::getPtr());
+    // 从配置文件初始化字典构建器的单例
+    static void init(Configer& conf) {
+        if (_ptr == nullptr) {
+            string chineseDir = conf.getConfigMap()["chineseDir"];
+            _ptr = new DictProducer(chineseDir, SplitTool::getPtr());
         }
+    }
+    static DictProducer* getPtr(){
         return _ptr;
     }
 private:

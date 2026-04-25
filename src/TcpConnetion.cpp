@@ -43,12 +43,17 @@ InetAddress TcpConnetion::getPeerAddr(){
     return InetAddress(temp);
 }
 string TcpConnetion::receive(){
-    char buf[1024];
+    char buf[65536] = {0};
     sockIO.readline(buf);
-    return string(buf);
+    string result(buf);
+    // 去掉末尾的 '\n'（如果存在）
+    if (!result.empty() && result.back() == '\n') {
+        result.pop_back();
+    }
+    return result;
 }
 void TcpConnetion::send(const string &msg){
-    sockIO.writen(msg.c_str(),msg.size()+1);
+    sockIO.writen(msg.c_str(), msg.size());
 }
 string TcpConnetion::toString(){}
 void TcpConnetion::setNewConnetCallBack(TcpConnetionCallBack& cb){

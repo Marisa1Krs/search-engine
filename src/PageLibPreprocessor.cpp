@@ -24,7 +24,7 @@ void PageLibPreprocessor::doProcess(){
 }
 void PageLibPreprocessor::readInfoFromFile(){
     string pathWebPage=_conf.getConfigMap()["webPagePath"];
-    int storeFd=open(pathWebPage.c_str(),O_RDWR| O_CREAT | O_APPEND,0666);
+    int storeFd=open(pathWebPage.c_str(),O_RDWR| O_CREAT | O_TRUNC,0666);
     string dir=_conf.getConfigMap()["xmlPath"];
     vector<string> files;
     LOG_INFO("Create PageLib ,dir is %s", dir.c_str());
@@ -127,46 +127,58 @@ bool PageLibPreprocessor::cutRedundantPages(string text,vector<uint64_t>& helper
     helper.push_back(simText);
     return 1;
 }//去重
-std::string keepChineseAndLetters(const std::string& input) {
+// 解码常见的 HTML 实体
+std::string decodeHtmlEntities(const std::string& input) {
     std::string result;
     size_t i = 0;
-    const size_t input_len = input.size();
-
-    while (i < input_len) {
-        // 转换为 unsigned char 避免有符号字符的判断错误（如 0x80 以上被解析为负数）
-        unsigned char current_byte = static_cast<unsigned char>(input[i]);
-
-        // 1. 匹配英文字母（1字节 UTF-8，即 ASCII 字母）
-        if ((current_byte >= 'a' && current_byte <= 'z') || 
-            (current_byte >= 'A' && current_byte <= 'Z')) {
-            result.push_back(input[i]);
-            ++i;
-        }
-        // 2. 匹配 UTF-8 中文（3字节编码：首字节 0xE0-0xEF，后续两字节 0x80-0xBF）
-        else if (current_byte >= 0xE0 && current_byte <= 0xEF) {
-            // 确保后续还有 2 个字节（避免不完整的 UTF-8 序列导致乱码）
-            if (i + 2 < input_len) {
-                unsigned char byte1 = static_cast<unsigned char>(input[i+1]);
-                unsigned char byte2 = static_cast<unsigned char>(input[i+2]);
-                // 验证后续两字节是否符合 UTF-8 续节规则（0x80-0xBF）
-                if ((byte1 >= 0x80 && byte1 <= 0xBF) && 
-                    (byte2 >= 0x80 && byte2 <= 0xBF)) {
-                    // 保留完整的 3 字节中文字符
-                    result.append(input.substr(i, 3));
-                    i += 3;  // 跳过已处理的 3 字节
+    while (i < input.size()) {
+        if (input[i] == '&') {
+            size_t semicolon = input.find(';', i);
+            if (semicolon != std::string::npos && semicolon - i <= 10) {
+                std::string entity = input.substr(i, semicolon - i + 1);
+                if (entity == "&" "lt;")    { result += '<'; i = semicolon + 1; continue; }
+                if (entity == "&" "gt;")    { result += '>'; i = semicolon + 1; continue; }
+                if (entity == "&" "amp;")   { result += '&'; i = semicolon + 1; continue; }
+                if (entity == "&" "quot;")  { result += '"'; i = semicolon + 1; continue; }
+                if (entity == "&" "apos;")  { result += '\''; i = semicolon + 1; continue; }
+                if (entity == "&" "nbsp;")  { result += ' '; i = semicolon + 1; continue; }
+                // 数字实体（如 &#160; &#x00A0;）跳过
+                if (entity.size() > 3 && entity[1] == '#') {
+                    i = semicolon + 1;
                     continue;
                 }
             }
-            // 若后续字节不完整/无效，跳过当前字节（避免乱码）
-            ++i;
         }
-        // 3. 其他字符（数字、标点、空格、其他多字节符号等）直接跳过
-        else {
-            ++i;
+        result += input[i];
+        ++i;
+    }
+    return result;
+}
+
+// 去除 HTML 标签：移除所有 <...> 标签及其内部属性，保留纯文本内容
+// 同时解码 HTML 实体
+std::string stripHtml(const std::string& input) {
+    std::string result;
+    bool inTag = false;
+    for (size_t i = 0; i < input.size(); ++i) {
+        if (input[i] == '<') {
+            inTag = true;
+            continue;
+        }
+        if (input[i] == '>') {
+            inTag = false;
+            // 标签结束后添加一个空格，防止标签前后文字粘连
+            // 但仅在结果末尾不是空格时添加
+            if (!result.empty() && result.back() != ' ') {
+                result += ' ';
+            }
+            continue;
+        }
+        if (!inTag) {
+            result += input[i];
         }
     }
-
-    return result;
+    return decodeHtmlEntities(result);
 }
 void PageLibPreprocessor::buildInvertIndex(){
     int banFd = open(banPathCn1, O_RDONLY); // 加载停用词
@@ -199,11 +211,13 @@ void PageLibPreprocessor::buildInvertIndex(){
         return;
     }
 
-    vector<map<string,int>> dict;
-    string buffer; 
+    // 【Bug 修复】使用 map<int,map<string,int>> 以 docId 为 key，
+    // 避免因部分文档解析失败跳过 push_back 导致 vector 索引与 docId 错位
+    map<int,map<string,int>> dict;
+    string buffer;
     for (const auto& item : _offsetLib) {
-        int docId = item.first + 1;        
-        off_t offset = item.second.first; 
+        int docId = item.first + 1;
+        off_t offset = item.second.first;
         size_t length = item.second.second;
         buffer.resize(length);
         if (lseek(fd, offset, SEEK_SET) == -1) {
@@ -214,29 +228,40 @@ void PageLibPreprocessor::buildInvertIndex(){
         XMLDocument doc;
         XMLError err = doc.Parse(buffer.c_str());
         if (err != XML_SUCCESS) {
-            LOG_ERROR("parse xml flase");
+            LOG_ERROR("parse xml flase, docId=%d", docId);
             continue;
         }
         XMLElement* root = doc.RootElement();
         if (!root) {
-            LOG_ERROR("can not find root");
+            LOG_ERROR("can not find root, docId=%d", docId);
             continue;
         }
         XMLElement* contentNode = root->FirstChildElement("content");
-        string tempText=contentNode->GetText();
+        if (!contentNode) {
+            LOG_ERROR("no <content> element, docId=%d", docId);
+            continue;
+        }
+        const char* contentText = contentNode->GetText();
+        if (!contentText) {
+            LOG_ERROR("content text is null, docId=%d", docId);
+            continue;
+        }
+        string tempText = contentText;
+        tempText = stripHtml(tempText);
+        // DEBUG: 打印前5个文档的清洗后文本和分词结果
         vector<string> help=SplitTool::getPtr()->cut(tempText);
         map<string,int> tempMap;
         for(auto &t:help){
             dictAll[t]++;
             tempMap[t]++;
         }
-        dict.push_back(tempMap);
-    }//第一次初始化词典
+        dict[docId] = tempMap;  // 以 docId 为 key 存储，不依赖 push_back 顺序
+    }//第一次初始化词典：以 docId 为 key 存储词频
 
 
     for (const auto& item : _offsetLib) {
-        int docId = item.first + 1;        
-        off_t offset = item.second.first; 
+        int docId = item.first + 1;
+        off_t offset = item.second.first;
         size_t length = item.second.second;
         buffer.resize(length);
         if (lseek(fd, offset, SEEK_SET) == -1) {
@@ -244,19 +269,34 @@ void PageLibPreprocessor::buildInvertIndex(){
             continue;
         }
         ssize_t bytesRead = read(fd, &buffer[0], length);
+        if (bytesRead != (ssize_t)length) {
+            LOG_WARN("read bytes mismatch: expect %zu, got %zd, docId=%d", length, bytesRead, docId);
+        }
         XMLDocument doc;
         XMLError err = doc.Parse(buffer.c_str());
         if (err != XML_SUCCESS) {
-            LOG_ERROR("parse xml flase");
+            LOG_ERROR("parse xml false, docId=%d, buffer[0..20]=%.*s", docId, 20, buffer.c_str());
             continue;
         }
         XMLElement* root = doc.RootElement();
         if (!root) {
-            LOG_ERROR("can not find root");
+            LOG_ERROR("can not find root, docId=%d", docId);
             continue;
         }
         XMLElement* contentNode = root->FirstChildElement("content");
-        string tempText=contentNode->GetText();
+        if (!contentNode) {
+            // 尝试找 description? 不，应该就是 content
+            LOG_ERROR("no <content> element found, docId=%d, first child=%s",
+                docId, root->FirstChildElement() ? root->FirstChildElement()->Name() : "null");
+            continue;
+        }
+        const char* contentText = contentNode->GetText();
+        if (!contentText) {
+            LOG_ERROR("content text is null, docId=%d", docId);
+            continue;
+        }
+        string tempText = contentText;
+        tempText = stripHtml(tempText);
         vector<string> help=SplitTool::getPtr()->cut(tempText);
         double totalDocs = static_cast<double>(dict.size());
 
@@ -268,8 +308,14 @@ void PageLibPreprocessor::buildInvertIndex(){
             // 2. 安全获取 TF (Term Frequency) - 当前文档中的频率
             // 使用 find 而不是 []，防止插入脏数据
             double tf = 0.0;
-            // 假设 dict 是 vector，先取 docId 对应的 map
-            const auto &docMap = dict[docId]; 
+            // 【Bug 修复】dict 现在是 map<int,map<string,int>>，直接用 docId 访问
+            // 不再依赖 vector 索引与 docId 的对齐关系
+            auto docIt = dict.find(docId);
+            if (docIt == dict.end()) {
+                // 如果该文档在第一遍就失败了（没有词频记录），跳过
+                continue;
+            }
+            const auto &docMap = docIt->second;
             auto itTF = docMap.find(t);
             
             if (itTF != docMap.end()) {
@@ -304,7 +350,19 @@ void PageLibPreprocessor::buildInvertIndex(){
     }
 
 
-    LOG_INFO("build invertIndex suess");
+    LOG_INFO("build invertIndex success, total unique words=%zu, total docs=%zu, _offsetLib size=%zu",
+        _invertIndex.size(), dict.size(), _offsetLib.size());
+    // 检查特定词是否在索引中
+    vector<string> checkWords = {"癌症", "慢性病", "慢性", "病", "天津"};
+    for (auto& w : checkWords) {
+        auto it = _invertIndex.find(w);
+        if (it != _invertIndex.end()) {
+            LOG_INFO("CHECK INDEX: word='%s' FOUND with %zu entries", w.c_str(), it->second.size());
+        } else {
+            LOG_WARN("CHECK INDEX: word='%s' NOT FOUND!", w.c_str());
+        }
+    }
+    LOG_INFO("build invertindex suessful");
     close(fd);
 }
 double abs1(double x){
@@ -316,21 +374,39 @@ json PageLibPreprocessor::find(const string& str){
     map<string,string> ans;
     string pathWebPage=_conf.getConfigMap()["webPagePath"];
     int fd = open(pathWebPage.c_str(), O_RDONLY);
+    if (fd == -1) {
+        LOG_ERROR("cannot open webpage file: %s", pathWebPage.c_str());
+        return ans;
+    }
+    
+    LOG_INFO("FIND: query='%s'", str.c_str());
     auto weights=SplitTool::getPtr()->extract(temp,5);
+    
+    LOG_INFO("FIND: extract returned %zu keywords", weights.size());
+    for (size_t i = 0; i < weights.size(); i++) {
+        LOG_INFO("FIND: keyword[%zu] = '%s', weight=%f", i, weights[i].first.c_str(), weights[i].second);
+    }
+    
     double df = 0.0;
     vector<double> simVector;
     for(auto &item:weights){
         auto t=item.first;
-    // auto itDF = dictAll.find(t);
-    //     if (itDF != dictAll.end()) {
-    //         df = static_cast<double>(itDF->second);
-    //     } else {
-    //     // 如果全局词典里没有这个词，设为0 (后面加1避免除零)
-    //         df = 0.0;
-    //     }
-    //     double idf = log2(dictAll.size() / (df + 1));
         double w = item.second ;
         simVector.push_back(w);
+        
+        // 检查倒排索引中是否有该词
+        auto it = _invertIndex.find(t);
+        if (it == _invertIndex.end()) {
+            LOG_WARN("FIND: word '%s' NOT FOUND in _invertIndex!", t.c_str());
+        } else {
+            LOG_INFO("FIND: word '%s' found in _invertIndex with %zu entries",
+                t.c_str(), it->second.size());
+            // 打印前几个docId
+            for (size_t k = 0; k < it->second.size() && k < 3; k++) {
+                LOG_INFO("FIND:   entry[%zu]: docId=%d, weight=%f",
+                    k, it->second[k].first, it->second[k].second);
+            }
+        }
     }
     set<int> set_intersection_result;
     set<int> set1;
@@ -341,13 +417,19 @@ json PageLibPreprocessor::find(const string& str){
     for(auto &t:_invertIndex[weights[0].first]){
         set1.insert(t.first);
     }
-    else
-    return ans;
+    else {
+        LOG_WARN("FIND: no keywords extracted, returning empty");
+        close(fd);
+        return ans;
+    }
+    
+    LOG_INFO("FIND: initial set1 size=%zu (from keyword '%s')", set1.size(), weights[0].first.c_str());
 
     for(int i=1;i<weights.size();i++){
     for(auto &t:_invertIndex[weights[i].first]){
         set2.insert(t.first);
     }
+    LOG_INFO("FIND: keyword[%d]='%s' has %zu docs", i, weights[i].first.c_str(), set2.size());
     // 使用 std::set_intersection 取交集
     set_intersection(
         set1.begin(), set1.end(),
@@ -355,6 +437,7 @@ json PageLibPreprocessor::find(const string& str){
         // 使用 std::inserter 将结果插入到新的 set 中
         std::inserter(set_intersection_result, set_intersection_result.begin())
     );
+    LOG_INFO("FIND: intersection size=%zu", set_intersection_result.size());
     set2.clear();
     set1=set_intersection_result;
     set_intersection_result.clear();
@@ -388,9 +471,21 @@ json PageLibPreprocessor::find(const string& str){
      for(int i=0;i<simVector.size();i++){
         mutlab+=simVector[i]*simVectorb[i];
      }
-      helper.push_back({mutlab/(moda+modb),docid});
+      // 【Bug 2 修复】余弦相似度分母应是模的乘积，而非加法
+      if (moda == 0.0 || modb == 0.0) {
+          LOG_DEBUG("FIND: skip docId=%d because moda=%f or modb=%f", docid, moda, modb);
+          continue;
+      }
+      helper.push_back({mutlab/(moda*modb),docid});
     }
-      sort(helper.begin(),helper.end());
+      // 【Bug 3 修复】按余弦相似度降序排序（相似度越大越好）
+      sort(helper.begin(),helper.end(),[](const pair<double,int>& a,const pair<double,int>& b){
+          return a.first > b.first;
+      });
+      LOG_INFO("FIND: after cosine similarity, helper size=%zu", helper.size());
+      if (helper.size() > 0) {
+          LOG_INFO("FIND: top result: docId=%d, similarity=%f", helper[0].second, helper[0].first);
+      }
       string buffer;
       for(int i=0;i<min(static_cast<int>(helper.size()),1);i++){
         int docId = helper[i].second ;        

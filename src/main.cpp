@@ -24,7 +24,6 @@ using std::string;
 using std::vector;
 using namespace simhash;
 using json = nlohmann::json;
-string logPath="/home/marisa/code1/search-engine/log/log.txt";
 vector<string> splitBySpace(const std::string &input)
 {
     vector<string> result;
@@ -83,20 +82,37 @@ void onClose(const shared_ptr<TcpConnetion> &con)
 }
 int main()
 {
-    mylog::init(logPath,4096,LOG_INFO);
-     string cnt="/home/marisa/code1/search-engine/data/yuliao/chinese";
-    // DictProducer temp(cnt,SplitTool::getPtr());
-    // temp.buildCnDict();
-    // sleep(5);
-    DictProducer::getPtr()->buildEnDict();
-    DictProducer::getPtr()->buildCnDict();
+    // 配置文件路径（唯一保留的硬编码路径，作为配置入口）
     string confPath="/home/marisa/code1/search-engine/config/serch.conf";
     Configer con(confPath);
+    auto& cfg = con.getConfigMap();
+
+    // 初始化日志：路径、缓冲区大小、日志级别
+    string logPath = cfg["logPath"];
+    int logBufSize = std::stoi(cfg["logBufferSize"]);
+    int logLevel = std::stoi(cfg["logLevel"]);
+    mylog::init(logPath, logBufSize, static_cast<LogLevel>(logLevel));
+
+    // DictProducer 初始化中文/英文词典（词库构建）
+    DictProducer::init(con);
+    DictProducer::getPtr()->buildEnDict();
+    DictProducer::getPtr()->buildCnDict();
+
+    // 构建倒排索引
     PageLibPreprocessor::init(con);
     PageLibPreprocessor::getPtr()->doProcess();
-    server = new TcpServer("192.168.159.129", "8080");
+
+    // 启动 TCP 服务器
+    string serverIp = cfg["serverIp"];
+    string serverPort = cfg["serverPort"];
+    server = new TcpServer(serverIp, serverPort);
+
+    // 线程池
+    int threadCount = std::stoi(cfg["threadPoolThreadCount"]);
+    int queueSize = std::stoi(cfg["threadPoolQueueSize"]);
+    tpool = new threadpool(threadCount, queueSize);
+
     server->setCallBack(onNewConnet, onMessage, onClose);
-    tpool = new threadpool(4, 4);
     tpool->start();
     server->start();
     return 0;

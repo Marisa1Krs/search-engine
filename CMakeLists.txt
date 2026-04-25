@@ -37,4 +37,6 @@ add_executable(server ${SRCS})
 #     /home/marisa/code1/search-engine/data/third_party/*.so # 匹配所有动态库
 # )
 target_link_libraries(server PRIVATE tinyxml2)
+# ####################################### 客户端子目录 #######################################
+add_subdirectory(${PROJECT_SOURCE_DIR}/cli)
 # ###########################################################################################
