@@ -489,8 +489,7 @@ json PageLibPreprocessor::find(const string& str){
           LOG_INFO("FIND: top result: docId=%d, similarity=%f", helper[0].second, helper[0].first);
       }
       string buffer;
-      int maxResults = 5;
-      for(int i=0;i<min(static_cast<int>(helper.size()),maxResults);i++){
+      for(int i=0;i<static_cast<int>(helper.size());i++){
         int docId = helper[i].second ;
         off_t offset = _offsetLib[docId-1].first;
         size_t length =_offsetLib[docId-1].second;
